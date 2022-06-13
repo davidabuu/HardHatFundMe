@@ -28,18 +28,19 @@ module.exports = {
     compilers: [{ version: "0.8.8" }, { version: "0.6.6" }],
   },
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    rinkeby: {
+      url: process.env.RPC_URL,
+      accounts:[process.env.PRIVATE_KEY],
+      chainId:4,
+      blockConfirmations:6
     },
   },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
-  },
+  // gasReporter: {
+  //   enabled: process.env.REPORT_GAS !== undefined,
+  //   currency: "USD",
+  // },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.API_URL_KEY,
   },
   namedAccounts: {
     deployer: {
