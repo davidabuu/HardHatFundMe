@@ -61,5 +61,43 @@ describe("Fund Me", async function () {
         endDeployerBalance.add(gasCost).toString()
       );
     });
+    it('Allows us to withdraw with multiple funders', async () => {
+       const accounts = await ethers.getSigners()
+       for(let i = 1; i < 6; i++){
+        const fundMeConnectedContract = await fundMe.connect(accounts[i])
+        await fundMeConnectedContract.fund({value: sendValue})
+       }
+       const startingFundMeBalance = await fundMe.provider.getBalance(
+        fundMe.address
+      );
+      const startingDeployerBalance = await fundMe.provider.getBalance(
+        deployer
+      );
+      const transacRes = await fundMe.withdraw();
+      const transactionReceipt = await transacRes.wait(1);
+     // const { gasUsed, effectiveGasPrice } = transactionReceipt;
+      const { gasUsed, effectiveGasPrice } = transactionReceipt;
+      const gasCost = gasUsed.mul(effectiveGasPrice);
+      //Assert
+      const endFundMeBalance = await fundMe.provider.getBalance(fundMe.address);
+      const endDeployerBalance = await fundMe.provider.getBalance(deployer);
+      //Assert
+      assert.equal(endFundMeBalance, 0);
+      assert.equal(
+        startingFundMeBalance.add(startingDeployerBalance).toString(),
+        endDeployerBalance.add(gasCost).toString()
+      );
+      await expect(fundMe.funders[0]).to.be.reverted
+       for(let i = 1; i < 6; i++){
+        assert.equal(await fundMe.addressToAmountFunded(accounts[i].address), 0)
+       }
+    })
+    it('Only allows the ownert', async () => {
+      const accounts = ethers.getSigners()
+      const attacker = accounts[1]
+      const attacks = await fundMe.connect(attacker)
+      await expect(attacks.withdraw()).to.be.reverted
+    })
   });
 });
+ 
